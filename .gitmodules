@@ -10,7 +10,6 @@
 [submodule "lib/scw-contracts"]
 	path = lib/scw-contracts
 	url = https://github.com/bcnmy/scw-contracts
-[submodule "lib/semaphore-protocol"]
-	path = lib/semaphore-protocol
+[submodule "lib/semaphore"]
+	path = lib/semaphore
 	url = https://github.com/semaphore-protocol/semaphore
-

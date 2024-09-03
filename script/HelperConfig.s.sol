@@ -4,6 +4,9 @@ pragma solidity ^0.8.18;
 
 import {Script, console2} from "forge-std/Script.sol";
 import {EntryPoint} from "lib/account-abstraction/contracts/core/EntryPoint.sol";
+import {BasePaymaster} from "lib/account-abstraction/contracts/core/BasePaymaster.sol";
+import {DeployGasPaymaster} from "./DeployGasPaymaster.s.sol";
+import {GasPaymaster} from "../src/ethereum/GasPaymaster.sol";
 
 contract HelperConfig is Script {
     error HelperConfig_InvalidConfig();
@@ -11,6 +14,7 @@ contract HelperConfig is Script {
     struct NetworkConfig {
         address entryPoint;
         address account;
+        address paymaster;
     }
 
     uint256 constant ETH_SEPOLIA_CHAIN_ID = 11155111;
@@ -54,7 +58,8 @@ contract HelperConfig is Script {
         return
             NetworkConfig({
                 entryPoint: 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789,
-                account: BURNER_ADDRESS
+                account: BURNER_ADDRESS,
+                paymaster: BURNER_ADDRESS // Need to change to the actual paymaster address
             });
     }
 
@@ -62,7 +67,8 @@ contract HelperConfig is Script {
         return
             NetworkConfig({
                 entryPoint: 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789,
-                account: BURNER_ADDRESS
+                account: BURNER_ADDRESS,
+                paymaster: BURNER_ADDRESS // Need to change to the actual paymaster address
             });
     }
 
@@ -77,11 +83,13 @@ contract HelperConfig is Script {
         vm.startBroadcast(DEFAULT_SENDER);
 
         EntryPoint entryPoint = new EntryPoint();
+        GasPaymaster gasPaymaster = new GasPaymaster(entryPoint);
 
         vm.stopBroadcast();
         localConfig = NetworkConfig({
             entryPoint: address(entryPoint),
-            account: SENDER_ADDRES_DEFAULT
+            account: SENDER_ADDRES_DEFAULT,
+            paymaster: address(gasPaymaster)
         });
         return localConfig;
     }

@@ -24,7 +24,8 @@ contract SendPackedUserOp is Script {
         PackedUserOperation memory userOp = _generateUnsignedUserOp(
             callData,
             smartAccount,
-            nonce
+            nonce,
+            config.paymaster
         );
         // get userOp Hash
 
@@ -53,7 +54,8 @@ contract SendPackedUserOp is Script {
     function _generateUnsignedUserOp(
         bytes memory callData,
         address sender,
-        uint256 nonce
+        uint256 nonce,
+        address paymaster
     ) internal pure returns (PackedUserOperation memory) {
         // 1. Generate unsiged userOP
         // 2. Return the unsigned userOP
@@ -61,6 +63,18 @@ contract SendPackedUserOp is Script {
         uint128 callGasLimit = verificationGasLimit;
         uint128 maxPriorityFeePerGas = 256;
         uint128 maxFeePerGas = maxPriorityFeePerGas;
+
+        bytes memory paymasterAndData;
+
+        if (paymaster != address(0)) {
+            paymasterAndData = _generatePaymasterData(
+                paymaster,
+                verificationGasLimit,
+                callGasLimit
+            );
+        } else {
+            paymasterAndData = hex"";
+        }
         return
             PackedUserOperation({
                 sender: sender,
@@ -77,5 +91,13 @@ contract SendPackedUserOp is Script {
                 paymasterAndData: hex"",
                 signature: hex""
             });
+    }
+
+    function _generatePaymasterData(
+        address _paymaster,
+        uint128 validationGaslimit,
+        uint128 postOpGasLimit
+    ) internal pure returns (bytes memory) {
+        return abi.encodePacked(_paymaster, validationGaslimit, postOpGasLimit);
     }
 }

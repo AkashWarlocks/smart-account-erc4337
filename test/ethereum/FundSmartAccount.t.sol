@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.2;
 import {Test} from "forge-std/Test.sol";
 
@@ -11,6 +11,7 @@ import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/Messa
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {ERC20Mock} from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
 import {SIG_VALIDATION_FAILED, SIG_VALIDATION_SUCCESS} from "lib/account-abstraction/contracts/core/Helpers.sol";
+import {GasPaymaster} from "../../src/ethereum/GasPaymaster.sol";
 
 contract FundSmartAccountTest is Test {
     using MessageHashUtils for bytes32;
@@ -18,6 +19,7 @@ contract FundSmartAccountTest is Test {
     FundSmartAccount fundSmartAccount;
     ERC20Mock usdc;
     SendPackedUserOp sendPackedUserOp;
+    GasPaymaster gasPaymaster;
 
     address randomUser = makeAddr("randomUser");
 
@@ -30,6 +32,8 @@ contract FundSmartAccountTest is Test {
         usdc = new ERC20Mock();
 
         sendPackedUserOp = new SendPackedUserOp();
+
+        gasPaymaster = GasPaymaster(helperConfig.getConfig().paymaster);
     }
 
     // USDC approval
@@ -220,8 +224,8 @@ contract FundSmartAccountTest is Test {
             );
 
         vm.deal(address(fundSmartAccount), 1e18);
-        //Act
 
+        //Act
         vm.prank(randomUser);
         PackedUserOperation[] memory userOps = new PackedUserOperation[](1);
         userOps[0] = signedUserOp;
@@ -232,5 +236,11 @@ contract FundSmartAccountTest is Test {
         );
 
         assertEq(usdc.balanceOf(address(fundSmartAccount)), 1000);
+    }
+
+    function testCallsUsingPaymaster() public {
+        // Arrange
+        // Act
+        // Revert
     }
 }

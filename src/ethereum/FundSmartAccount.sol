@@ -135,4 +135,23 @@ contract FundSmartAccount is IAccount, Ownable {
     function getEntryPoint() external view returns (address) {
         return address(i_entrypoint);
     }
+
+    /**
+     * @dev Refund the smart contract
+     * @dev only for development purposes
+     */
+    function refund() external onlyOwner {
+        // Refund the smart contract
+        // The smart contract is refunded by the owner
+        // The owner is responsible for refunding the smart contract
+        // The smart contract is responsible for refunding the account
+        // The account is responsible for refunding the recipient
+        // The recipient is responsible for receiving the refund
+
+        (bool success, ) = payable(owner()).call{
+            value: address(this).balance,
+            gas: type(uint256).max
+        }("");
+        (success);
+    }
 }
